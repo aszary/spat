@@ -1,0 +1,7 @@
+output/*
+# sync this file
+!output/README
+
+input/*
+# sync this file
+!input/README
