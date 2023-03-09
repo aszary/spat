@@ -12,6 +12,7 @@ module SPAT
         #Plot.single0(data, "output"; number=150, bin_st=400, bin_end=600, name_mod="J0820")
 
         Plot.single(data, "output"; bin_st=400, bin_end=600, name_mod="low")
+        Plot.single(data2, "output"; bin_st=400, bin_end=600, name_mod="high")
     end
 
 

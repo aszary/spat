@@ -62,21 +62,25 @@ module Plot
         # Figure size
         size_inches = (8/2.54, 11/2.54) # 8cm x 11cm
         size_pt = 72 .* size_inches
-        println(size_pt)
+        #println(size_pt)
         fig = Figure(resolution = size_pt, fontsize = 8)
 
-        left = Axis(fig[1:3, 1], xlabel="bin number", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true, alignmode = Inside())
-        hidedecorations!(left, grid=true, label=true, ticks=true, ticklabels=true)
+        left = Axis(fig[1:3, 1], xlabel="longitude", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true)
+        hidexdecorations!(left,label = true, ticklabels = true, ticks = true, grid = true,    minorgrid = true, minorticks = true)
+        hideydecorations!(left, label = false, ticklabels = false, ticks = false, grid = true,    minorgrid = true, minorticks = false)
         lines!(left, intensity, pulses, color=:grey, linewidth=0.5)
+        ylims!(left, [pulses[1], pulses[end]])
 
-        right = Axis(fig[1:3, 2:3], xlabel="bin number", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true, alignmode = Inside())
+        right = Axis(fig[1:3, 2:3], xlabel="bin number", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true)
         hidedecorations!(right, grid=true, label=true, ticks=true, ticklabels=true)
         #image!(right, transpose(da))
         heatmap!(right, transpose(da))
 
-        bottom = Axis(fig[4, 2:3], xlabel="bin number", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true, alignmode = Inside())
-        hidedecorations!(bottom, grid=true, label=true, ticks=true, ticklabels=true)
+        bottom = Axis(fig[4, 2:3], xlabel="longitude", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true, alignmode = Inside())
+        hidexdecorations!(bottom, label = false, ticklabels = false, ticks = false, grid = true,    minorgrid = true, minorticks = false)
+        hideydecorations!(bottom, grid=true, label=true, ticks=true, ticklabels=true)
         lines!(bottom, longitude, average, color=:grey, linewidth=0.5)
+        xlims!(bottom, [longitude[1], longitude[end]])
 
         rowgap!(fig.layout, 0)
         colgap!(fig.layout, 0)
