@@ -65,7 +65,7 @@ module Plot
         #println(size_pt)
         fig = Figure(resolution = size_pt, fontsize = 8)
 
-        left = Axis(fig[1:3, 1], xlabel="longitude", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true)
+        left = Axis(fig[1:3, 1], ylabel=L"Pulse number $$", xminorticksvisible=true, yminorticksvisible=true)
         hidexdecorations!(left,label = true, ticklabels = true, ticks = true, grid = true,    minorgrid = true, minorticks = true)
         hideydecorations!(left, label = false, ticklabels = false, ticks = false, grid = true,    minorgrid = true, minorticks = false)
         lines!(left, intensity, pulses, color=:grey, linewidth=0.5)
@@ -76,11 +76,12 @@ module Plot
         #image!(right, transpose(da))
         heatmap!(right, transpose(da))
 
-        bottom = Axis(fig[4, 2:3], xlabel="longitude", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true, alignmode = Inside())
+        bottom = Axis(fig[4, 2:3], xlabel=L"longitude ($^\circ$)", ylabel=L"$$ intensity", xminorticksvisible=true, yminorticksvisible=true, alignmode = Outside()) # TODO check alignmode
         hidexdecorations!(bottom, label = false, ticklabels = false, ticks = false, grid = true,    minorgrid = true, minorticks = false)
-        hideydecorations!(bottom, grid=true, label=true, ticks=true, ticklabels=true)
+        hideydecorations!(bottom, grid=true, label=false, ticks=false, ticklabels=false)
         lines!(bottom, longitude, average, color=:grey, linewidth=0.5)
         xlims!(bottom, [longitude[1], longitude[end]])
+        #bottom.alignmode = Mixed(left = -19)
 
         rowgap!(fig.layout, 0)
         colgap!(fig.layout, 0)
