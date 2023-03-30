@@ -76,12 +76,18 @@ module Plot
         #image!(right, transpose(da))
         heatmap!(right, transpose(da))
 
-        bottom = Axis(fig[4, 2:3], xlabel=L"longitude ($^\circ$)", ylabel=L"$$ intensity", xminorticksvisible=true, yminorticksvisible=true, alignmode = Outside()) # TODO check alignmode
+        bottom = Axis(fig[4, 2:3], xlabel=L"longitude ($^\circ$)", ylabel=L"$$ intensity", xminorticksvisible=true, yminorticksvisible=true) #, alignmode=Mixed()) #, alignmode=Inside()) #Mixed()) #, alignmode = Outside()) # TODO check alignmode
         hidexdecorations!(bottom, label = false, ticklabels = false, ticks = false, grid = true,    minorgrid = true, minorticks = false)
-        hideydecorations!(bottom, grid=true, label=false, ticks=false, ticklabels=false)
+        hideydecorations!(bottom, grid=true, label=false, ticks=false, ticklabels=false,  minorticks=false)
         lines!(bottom, longitude, average, color=:grey, linewidth=0.5)
         xlims!(bottom, [longitude[1], longitude[end]])
-        #bottom.alignmode = Mixed(left = -19)
+        bottom.alignmode = Mixed(left=-34)
+
+        #println(dump(bottom, maxdepth=1))
+        #bottom.height=30
+
+        #linkyaxes!(left, right) # nope
+        #linkxaxes!(right, bottom) # nope
 
         rowgap!(fig.layout, 0)
         colgap!(fig.layout, 0)
