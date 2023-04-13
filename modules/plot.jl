@@ -2,8 +2,8 @@ module Plot
     using CairoMakie # 2D vector plots
     using FFTW
     using GLMakie # 3D plots (pngs) # https://docs.makie.org/stable/documentation/figure_size/
-    #GLMakie.activate!()
-    CairoMakie.activate!()
+    GLMakie.activate!()
+    #CairoMakie.activate!()
 
     include("tools.jl")
 
@@ -103,8 +103,20 @@ module Plot
 
     function test(data)
 
-        da = transpose(data)
-        da = da[500, :]
+        #da = transpose(data)
+        da = data
+        #da = vcat(da[120, :], da[121, :], da[122, :])
+        da = da[1:256, :]
+        res = []
+        for i in 25:55
+            res = vcat(res, da[i, :])
+        #println(size(res))
+        end
+        da = convert(Array{Float64}, res)
+
+        println(size(da))
+        println(typeof(da))
+        #return
 
         sz = size(da, 1)
         half = floor(Int, sz/2) 
