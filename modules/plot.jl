@@ -1,6 +1,9 @@
 module Plot
     using CairoMakie # 2D vector plots
-    # using GLMakie # 3D plots (pngs) # https://docs.makie.org/stable/documentation/figure_size/
+    using FFTW
+    using GLMakie # 3D plots (pngs) # https://docs.makie.org/stable/documentation/figure_size/
+    #GLMakie.activate!()
+    CairoMakie.activate!()
 
     include("tools.jl")
 
@@ -41,7 +44,7 @@ module Plot
 
     function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
         num, bins = size(data)
-        if number == nothing
+        if number === nothing
             number = num - start  # missing one?
         end
         if bin_st == nothing bin_st = 1 end
@@ -98,6 +101,31 @@ module Plot
 
     end
 
+    function test(data)
+
+        da = transpose(data)
+        da = da[500, :]
+
+        sz = size(da, 1)
+        half = floor(Int, sz/2) 
+        
+        ff = abs.(fft(da))
+        freq = fftfreq(sz)
+
+        fig = Figure()
+        
+        ax = Axis(fig[1, 1])
+        lines!(ax, da, color=:black, linewidth=1)
+
+        ax2 = Axis(fig[2, 1])
+        #lines!(ax2, ff, color=:red, linewidth=1)
+        #lines!(ax2, freq, ff, color=:red, linewidth=1)
+        lines!(ax2, freq[1:half], ff[1:half], color=:red, linewidth=1)
+        #lines!(fig, 2*da, color=:grey, linewidth=0.5)
+
+        #save("output/test.pdf", fig)
+        display(fig)
+    end
 
 
     #=
