@@ -139,18 +139,21 @@ function test(data)
 
     # periodogram
     p = periodogram(da)
+    #p = welch_pgram(da)
 
     fig = Figure()
 
     ax = Axis(fig[1, 1])
     lines!(ax, da, color=:black, linewidth=2)
-    lines!(ax, iff, color=(:red, 0.4), linewidth=10)
+    lines!(ax, iff, color=(:red, 0.4), linewidth=5)
 
     ax2 = Axis(fig[2, 1])
     #lines!(ax2, ff, color=:red, linewidth=1)
     #lines!(ax2, freq, ff, color=:red, linewidth=1)
     lines!(ax2, freq[1:half], ff[1:half], color=:red, linewidth=1)
     vlines!(ax2, 1/1024, color=:blue, linewidth=1)
+    vlines!(ax2, 2/1024, color=:blue, linewidth=1)
+    vlines!(ax2, 3/1024, color=:blue, linewidth=1)
     #lines!(fig, 2*da, color=:grey, linewidth=0.5)
 
     ax3 = Axis(fig[3, 1])
