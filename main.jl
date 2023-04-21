@@ -9,7 +9,7 @@ module SPAT
         data = Data.load_ascii("input/1.txt")
         data2 = Data.load_ascii("input/2.txt")
 
-        Plot.test(data)
+        Plot.test_fft(data)
 
 
         #Plot.single0(data, "output"; number=150, bin_st=400, bin_end=600, name_mod="J0820")

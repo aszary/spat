@@ -111,7 +111,7 @@ function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothin
 
 end
 
-function test(data)
+function test_fft(data)
 
     #da = transpose(data)
     da = data
