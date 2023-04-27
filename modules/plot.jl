@@ -133,6 +133,7 @@ function test_fft(data)
     freq = fftfreq(sz)
     #iff = real.(ifft(ff0))
 
+    #=
     ff_new = []
     st = 3
     en = 10
@@ -149,6 +150,8 @@ function test_fft(data)
     ff_new = convert(Array{ComplexF64}, ff_new)
     #println(typeof(ff0))
     iff = real.(ifft(ff_new))
+    =#
+    iff = real.(ifft(ff0))
 
     # Autocorrelation
     lags = collect(1:2048)
@@ -168,13 +171,13 @@ function test_fft(data)
     ax2 = Axis(fig[2, 1])
     #lines!(ax2, ff, color=:red, linewidth=1)
     #lines!(ax2, freq, ff, color=:red, linewidth=1)
-    #lines!(ax2, freq[1:half], ff[1:half], color=:red, linewidth=1)
+    lines!(ax2, freq[1:half], ff[1:half], color=:red, linewidth=1)
     #lines!(ax2, freq[1:half], abs.(ff_new)[1:half], color=:green, linewidth=1)
-    lines!(ax2, freq, ff, color=:red, linewidth=1)
     #lines!(ax2, freq, abs.(ff_new), color=:green, linewidth=1)
-    lines!(ax2, freq, imag.(ff0), color=:blue, linewidth=1)
+    #lines!(ax2, freq, ff, color=:red, linewidth=1)
+    #lines!(ax2, freq, imag.(ff0), color=:blue, linewidth=1)
 
-    #vlines!(ax2, 1/1024, color=:blue, linewidth=1)
+    vlines!(ax2, 1/1024, color=:blue, linewidth=1)
     #vlines!(ax2, 2/1024, color=:blue, linewidth=1)
     #vlines!(ax2, 3/1024, color=:blue, linewidth=1)
     #lines!(fig, 2*da, color=:grey, linewidth=0.5)
