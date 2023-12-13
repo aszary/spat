@@ -2,12 +2,86 @@ module Plot
 using CairoMakie # 2D vector plots
 using FFTW
 using GLMakie # 3D plots (pngs) # https://docs.makie.org/stable/documentation/figure_size/
-GLMakie.activate!()
-#CairoMakie.activate!()
+#GLMakie.activate!()
+CairoMakie.activate!()
 using StatsBase
 using DSP
 
 include("tools.jl")
+
+
+struct Panels
+    left
+    right
+    top
+    bottom
+    center
+end
+
+
+function triple_panels()
+    
+    # Figure size
+    size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
+    size_pt = 72 .* size_inches
+    #println(size_pt)
+
+    fig = Figure(resolution=size_pt, fontsize=8)
+
+    left = Axis(fig[1:6, 1], xminorticksvisible=true, yminorticksvisible=true, xticks=[0.5]) # 2:6, 1
+    #top = Axis(fig[1, 2:3], xaxisposition=:top, yaxisposition = :right)
+    center = Axis(fig[1:6, 2:3]) # 2:6, 2:3
+    bottom = Axis(fig[7, 2:3], yaxisposition = :left, xminorticksvisible=true, yminorticksvisible=true, yticklabelsvisible=false)
+
+    left.xreversed=true
+
+    hidedecorations!.(center)
+    hidedecorations!.(left, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
+    #hidedecorations!.(top, grid=false, ticks=false, ticklabels=false)
+    hidedecorations!.(bottom, grid=true, ticks=false, ticklabels=false,label=false, minorticks=false)
+    left.alignmode = Mixed(bottom = MakieLayout.Protrusion(0))
+    #top.alignmode = Mixed(left = MakieLayout.Protrusion(0))
+    bottom.alignmode = Mixed(left = MakieLayout.Protrusion(0))
+
+    colgap!(fig.layout, 0)
+    rowgap!(fig.layout, 0)
+
+    return fig, Panels(left, nothing, nothing, bottom, center)
+
+end
+
+
+function quad_panels()
+
+    # Figure size
+    size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
+    size_pt = 72 .* size_inches
+    #println(size_pt)
+
+    fig = Figure(resolution=size_pt, fontsize=8)
+
+    left = Axis(fig[2:6, 1], xminorticksvisible=true, yminorticksvisible=true, xticks=[0.5])
+    top = Axis(fig[1, 2:3], xaxisposition=:top, yaxisposition = :right)
+    center = Axis(fig[2:6, 2:3])
+    bottom = Axis(fig[7, 2:3], yaxisposition = :left, xminorticksvisible=true, yminorticksvisible=true, yticklabelsvisible=false)
+
+    left.xreversed=true
+
+    hidedecorations!.(center)
+    hidedecorations!.(left, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
+    hidedecorations!.(top, grid=false, ticks=false, ticklabels=false)
+    hidedecorations!.(bottom, grid=true, ticks=false, ticklabels=false,label=false, minorticks=false)
+    left.alignmode = Mixed(bottom = MakieLayout.Protrusion(0))
+    top.alignmode = Mixed(left = MakieLayout.Protrusion(0))
+    bottom.alignmode = Mixed(left = MakieLayout.Protrusion(0))
+
+    colgap!(fig.layout, 0)
+    rowgap!(fig.layout, 0)
+
+    return fig, Panels(left, nothing, top, bottom, center)
+
+
+end
 
 
 function single0(data, outdir; start=1, number=100, bin_st=nothing, bin_end=nothing, norm=2.0, name_mod="PSR_NAME")
@@ -48,7 +122,7 @@ function single0(data, outdir; start=1, number=100, bin_st=nothing, bin_end=noth
 end
 
 
-function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
+function single_old(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
     num, bins = size(data)
     if number === nothing
         number = num - start  # missing one?
@@ -94,7 +168,7 @@ function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothin
     hideydecorations!(bottom, grid=true, label=false, ticks=false, ticklabels=false, minorticks=false)
     lines!(bottom, longitude, average, color=:grey, linewidth=0.5)
     xlims!(bottom, [longitude[1], longitude[end]])
-    bottom.alignmode = Mixed(left=-34)
+    bottom.alignmode = Mixed(left=-34) # hack 
 
     #println(dump(bottom, maxdepth=1))
     #bottom.height=30
@@ -110,6 +184,58 @@ function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothin
     save(filename, fig, pt_per_unit=1)
 
 end
+
+
+function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
+
+    # PREPARE DATA
+    num, bins = size(data)
+    if number === nothing
+        number = num - start  # missing one?
+    end
+    if bin_st == nothing
+        bin_st = 1
+    end
+    if bin_end == nothing
+        bin_end = bins
+    end
+    da = data[start:start+number-1, bin_st:bin_end]
+    average = Tools.average_profile(da)
+    intensity, pulses = Tools.pulses_intensity(da)
+    intensity .-= minimum(intensity)
+    intensity ./= maximum(intensity)
+
+    pulses .+= start - 1  # julia
+
+    # Pulse longitude
+    db = (bin_end + 1) - bin_st  # yes +1
+    dl = 360.0 * db / bins
+    longitude = collect(range(-dl / 2.0, dl / 2.0, length=db))
+
+    # CREATE FIGURE
+    fig, p = triple_panels()
+    p.left.ylabel = "Pulse number"
+    p.left.xlabel = "intensity"
+    p.bottom.xlabel = L"longitude ($^\circ$)"
+
+    # PLOTTING DATA
+    lines!(p.left, intensity, pulses, color=:grey, linewidth=0.5)
+    #xlims!(left, [0.01, 1.01])
+    ylims!(p.left, [pulses[1], pulses[end]])
+
+    heatmap!(p.center, transpose(da))
+
+    lines!(p.bottom, longitude, average, color=:grey, linewidth=0.5)
+    xlims!(p.bottom, [longitude[1], longitude[end]])
+
+    #screen = display(fig)
+    #resize!(screen, 500, 800)
+    filename = "$outdir/$(name_mod)_single.pdf"
+    println(filename)
+    save(filename, fig, pt_per_unit=1)
+
+end
+
 
 function test_fft(data)
 
