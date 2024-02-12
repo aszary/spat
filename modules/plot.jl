@@ -1,9 +1,9 @@
 module Plot
 using CairoMakie # 2D vector plots
-using FFTW
 using GLMakie # 3D plots (pngs) # https://docs.makie.org/stable/documentation/figure_size/
 #GLMakie.activate!()
 CairoMakie.activate!()
+using FFTW
 using StatsBase
 using DSP
 
@@ -61,15 +61,15 @@ function quad_panels()
     fig = Figure(resolution=size_pt, fontsize=8)
 
     left = Axis(fig[2:6, 1], xminorticksvisible=true, yminorticksvisible=true, xticks=[0.5])
-    top = Axis(fig[1, 2:3], xaxisposition=:top, yaxisposition = :right)
+    top = Axis(fig[1, 2:3], xaxisposition=:top, yaxisposition = :left, xminorticksvisible=true, yminorticksvisible=true)
     center = Axis(fig[2:6, 2:3])
     bottom = Axis(fig[7, 2:3], yaxisposition = :left, xminorticksvisible=true, yminorticksvisible=true, yticklabelsvisible=false)
 
     left.xreversed=true
 
+    hidedecorations!.(top, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
     hidedecorations!.(center)
     hidedecorations!.(left, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
-    hidedecorations!.(top, grid=false, ticks=false, ticklabels=false)
     hidedecorations!.(bottom, grid=true, ticks=false, ticklabels=false,label=false, minorticks=false)
     left.alignmode = Mixed(bottom = MakieLayout.Protrusion(0))
     top.alignmode = Mixed(left = MakieLayout.Protrusion(0))
@@ -79,7 +79,6 @@ function quad_panels()
     rowgap!(fig.layout, 0)
 
     return fig, Panels(left, nothing, top, bottom, center)
-
 
 end
 
@@ -104,7 +103,7 @@ function single0(data, outdir; start=1, number=100, bin_st=nothing, bin_end=noth
     size_pt = 72 .* size_inches
 
     fig = Figure(resolution=size_pt, fontsize=8)
-    ax = Axis(fig[1, 1], xlabel="bin number", ylabel="Pulse number", xminorticksvisible=true, yminorticksvisible=true)
+    ax = Axis(fig[1, 1], xlabel=L"bin number $$", ylabel=L"Pulse number $$", xminorticksvisible=true, yminorticksvisible=true)
     hidexdecorations!(ax, label=false, ticklabels=false, ticks=false, grid=true, minorgrid=false, minorticks=false)
     hideydecorations!(ax, label=false, ticklabels=false, ticks=false, grid=true, minorgrid=false, minorticks=false)
 
@@ -186,7 +185,7 @@ function single_old(data, outdir; start=1, number=100, cmap="viridis", bin_st=no
 end
 
 
-function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
+function single(data, outdir; start=1, number=100, times=1, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
 
     # PREPARE DATA
     num, bins = size(data)
@@ -200,6 +199,7 @@ function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothin
         bin_end = bins
     end
     da = data[start:start+number-1, bin_st:bin_end]
+    da = repeat(da, times) # repeat data many times
     average = Tools.average_profile(da)
     intensity, pulses = Tools.pulses_intensity(da)
     intensity .-= minimum(intensity)
@@ -214,14 +214,14 @@ function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothin
 
     # CREATE FIGURE
     fig, p = triple_panels()
-    p.left.ylabel = "Pulse number"
-    p.left.xlabel = "intensity"
+    p.left.ylabel = L"Pulse number $$"
+    p.left.xlabel = L"intensity $$"
     p.bottom.xlabel = L"longitude ($^\circ$)"
 
     # PLOTTING DATA
     lines!(p.left, intensity, pulses, color=:grey, linewidth=0.5)
     #xlims!(left, [0.01, 1.01])
-    ylims!(p.left, [pulses[1], pulses[end]])
+    ylims!(p.left, [pulses[1]-0.5, pulses[end]+0.5])
 
     heatmap!(p.center, transpose(da))
 
@@ -234,6 +234,154 @@ function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothin
     println(filename)
     save(filename, fig, pt_per_unit=1)
 
+end
+
+
+function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="0", skip_firstfreq=true)
+
+    # PREPARE DATA
+    num, bins = size(data)
+    println("$num $bins")
+    if number === nothing
+        number = num - start + 1   # missing one?
+    end
+    if bin_st === nothing bin_st = 1 end
+    if bin_end === nothing bin_end = bins end
+    da = data[start:start+number-1, bin_st:bin_end]
+    average = Tools.average_profile(da)
+    lrfs, intensity, freq, peak = Tools.lrfs(da)
+    println("\tpeak freq $(freq[peak]) ")
+    println("\tpeak P3 $(1/freq[peak])")
+   
+    # skip freq = 0 and normalize intensity to 1
+    if skip_firstfreq
+        inten = intensity[2:end]
+        fre = freq[2:end]
+    else
+        inten = intensity[1:end]
+        fre = freq[1:end]
+    end
+    inten .-= minimum(inten)
+    inten ./= maximum(inten)
+    
+    # Pulse longitude
+    db = (bin_end + 1) - bin_st  # yes +1
+    dl = 360. * db / bins
+    longitude = collect(range(-dl/2., dl/2., length=db))
+
+    # Finding P3
+    pars, errs = Tools.fit_gaussian(fre, inten; μ=freq[peak-1])  # skip zero freq
+    fr = pars[2]
+    frer = pars[3] # errs[2] # greater taken?
+
+    println("\tFrequency (gaussian fit): $fr, P3: $(1/fr)")
+    f_min = fr - frer
+    f_max = fr + frer
+    # P3 error is it OK?
+    dP1 = 1 / fr - 1 / f_max
+    dP2 = 1 / f_min  - 1 / fr
+    dP = maximum([dP1, dP2])
+    println("\tFrequency error (gaussian fit): $frer, P3 error: $dP")
+
+    # LRFS phase  
+    phase_ = rad2deg.(angle.(view(lrfs, peak, :)))  # fft phase variation  # view used! lrfs[peak, :] -> copies data
+    #TODO work on phase uncertinies
+    #ephase_ = Array{Float64}(undef, size(phase_,1))
+    # TODO add bootstrap scheme
+
+    # does not work! to low freq resolution...
+    #= 
+    phases = []
+    for i in 1:size(phase_, 1)
+        push!(phases, [])
+        for j in 1:size(freq, 1)
+            if (freq[j] >= f_min) && (freq[j] <= f_max)
+                push!(phases[i], rad2deg(angle(lrfs[j, i])))
+                println(freq[j], " ", j, " ", f_min, " ", f_max)
+            end
+        end
+    end
+    println(phases)
+    =#
+
+    # CREATE FIGURE
+    fig, p = quad_panels()
+    p.left.ylabel = L"frequency $(1/P)$"
+    p.left.xlabel = L"intensity $$"
+    p.bottom.xlabel = L"longitude ($^\circ$)"
+    p.top.xlabel = L"longitude ($^\circ$)"
+    p.top.ylabel = L"FFT phase ($^\circ$)"
+
+    # PLOTTING DATA
+    scatter!(p.top, longitude, phase_, color=:grey, markersize=1)
+    xlims!(p.top, [longitude[1], longitude[end]])
+    lines!(p.left, inten, fre, color=:grey, linewidth=0.5)
+    lines!(p.left, Tools.gauss(fre, pars), fre, color=(:red, 0.3), linewidth=0.3)
+    #xlims!(left, [0.01, 1.01])
+    ylims!(p.left, [fre[1], fre[end]])
+    if skip_firstfreq
+        heatmap!(p.center, transpose(abs.(lrfs[2:end,:])))
+    else
+        heatmap!(p.center, transpose(abs.(lrfs)))
+    end
+    lines!(p.bottom, longitude, average, color=:grey, linewidth=0.5)
+    xlims!(p.bottom, [longitude[1], longitude[end]])
+
+    filename = "$outdir/$(name_mod)_lrfs.pdf"
+    println(filename)
+    save(filename, fig, pt_per_unit=1)
+end
+
+
+function p3folded(data, outdir, p3; ybins=18, start=1, number=nothing, times=10, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
+
+    # PREPARE DATA
+    num, bins = size(data)
+    if number === nothing
+        number = num - start  # missing one?
+    end
+    if bin_st == nothing
+        bin_st = 1
+    end
+    if bin_end == nothing
+        bin_end = bins
+    end
+    da = data[start:start+number-1, bin_st:bin_end]
+    p3fold = Tools.p3fold(da, p3; ybins=ybins)
+    da = repeat(p3fold, times) # p3 folds data from now on..
+
+    average = Tools.average_profile(da)
+    intensity, pulses = Tools.pulses_intensity(da)
+    intensity .-= minimum(intensity)
+    intensity ./= maximum(intensity)
+    pulses .+= start - 1  # julia
+
+    # Pulse longitude
+    db = (bin_end + 1) - bin_st  # yes +1
+    dl = 360.0 * db / bins
+    longitude = collect(range(-dl / 2.0, dl / 2.0, length=db))
+
+    # CREATE FIGURE
+    fig, p = triple_panels()
+    p.left.ylabel = L"Pulse number $$"
+    p.left.xlabel = L"intensity $$"
+    p.bottom.xlabel = L"longitude ($^\circ$)"
+
+    # PLOTTING DATA
+    lines!(p.left, intensity, pulses, color=:grey, linewidth=0.5)
+    #xlims!(p.left, [0.01, 1.01])
+    ylims!(p.left, [pulses[1]-0.5, pulses[end]+0.5])
+
+    heatmap!(p.center, transpose(da))
+
+    lines!(p.bottom, longitude, average, color=:grey, linewidth=0.5)
+    xlims!(p.bottom, [longitude[1], longitude[end]])
+
+    #screen = display(fig)
+    #resize!(screen, 500, 800)
+    filename = "$outdir/$(name_mod)_folded.pdf"
+    println(filename)
+    save(filename, fig, pt_per_unit=1)
 end
 
 
@@ -321,67 +469,6 @@ function test_fft(data)
     #save("output/test.pdf", fig)
     display(fig)
 end
-
-
-#=
-function single(data, outdir; start=1, number=100, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="PSR_NAME", show_=false)
-    num, bins = size(data)
-    if number == nothing
-        number = num - start  # missing one?
-    end
-    if bin_st == nothing bin_st = 1 end
-    if bin_end == nothing bin_end = bins end
-    da = data[start:start+number-1,bin_st:bin_end]
-    average = Tools.average_profile(da)
-    intensity, pulses = Tools.intensity_pulses(da)
-    intensity .-= minimum(intensity)
-    intensity ./= maximum(intensity)
-
-    pulses .+= start - 1  # julia
-
-    # Pulse longitude
-    db = (bin_end + 1) - bin_st  # yes +1
-    dl = 360. * db / bins
-    longitude = collect(range(-dl/2., dl/2., length=db))
-    rc("font", size=8.)
-    rc("axes", linewidth=0.5)
-    rc("lines", linewidth=0.5)
-
-    figure(figsize=(3.14961, 4.33071), frameon=true)  # 8cm x 11cm
-    subplots_adjust(left=0.16, bottom=0.09, right=0.99, top=0.99, wspace=0., hspace=0.)
-
-    subplot2grid((5, 3), (0, 0), rowspan=4)
-    minorticks_on()
-    plot(intensity, pulses, c="grey")
-    ylim(pulses[1]-0.5, pulses[end]+0.5)
-    xticks([0.5, 1.0])
-    xlim(1.1, -0.1)
-    xlabel("intensity")
-    ylabel("Pulse number")
-
-    subplot2grid((5, 3), (0, 1), rowspan=4, colspan=2)
-    imshow(da, origin="lower", cmap=cmap, interpolation="none", aspect="auto",  vmax=darkness*maximum(da))
-    #axvline(x=563, lw=2)
-    tick_params(labelleft=false, labelbottom=false)
-
-    subplot2grid((5, 3), (4, 1), colspan=2)
-    minorticks_on()
-    plot(longitude, average, c="grey")
-    yticks([0.0, 0.5])
-    xlim(longitude[1], longitude[end])
-    xlabel("longitude \$(^\\circ)\$")
-    #tick_params(labeltop=false, labelbottom=true)
-    println("$outdir/$(name_mod)_single.pdf")
-    savefig("$outdir/$(name_mod)_single.pdf")
-    if show_ == true
-        show()
-        readline(stdin; keep=false)
-    end
-    close()
-    #clf()
-end
-=#
-
 
 
 end # module
