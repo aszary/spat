@@ -192,14 +192,14 @@ function single(data, outdir; start=1, number=100, times=1, cmap="viridis", bin_
     if number === nothing
         number = num - start  # missing one?
     end
-    if bin_st == nothing
+    if bin_st === nothing
         bin_st = 1
     end
-    if bin_end == nothing
+    if bin_end === nothing
         bin_end = bins
     end
     da = data[start:start+number-1, bin_st:bin_end]
-    da = repeat(da, times) # repeat data many times
+    da = repeat(da, times) # repeat data X times
     average = Tools.average_profile(da)
     intensity, pulses = Tools.pulses_intensity(da)
     intensity .-= minimum(intensity)
@@ -237,7 +237,7 @@ function single(data, outdir; start=1, number=100, times=1, cmap="viridis", bin_
 end
 
 
-function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="0", skip_firstfreq=true)
+function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=nothing, bin_end=nothing, darkness=0.5, name_mod="0", skip_firstfreq=true, fix_fftphase=true)
 
     # PREPARE DATA
     num, bins = size(data)
@@ -247,7 +247,9 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     end
     if bin_st === nothing bin_st = 1 end
     if bin_end === nothing bin_end = bins end
+
     da = data[start:start+number-1, bin_st:bin_end]
+
     average = Tools.average_profile(da)
     lrfs, intensity, freq, peak = Tools.lrfs(da)
     println("\tpeak freq $(freq[peak]) ")
@@ -285,6 +287,30 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
 
     # LRFS phase  
     phase_ = rad2deg.(angle.(view(lrfs, peak, :)))  # fft phase variation  # view used! lrfs[peak, :] -> copies data
+    if fix_fftphase == true
+        for i in 1:length(phase_) - 1
+            dp = abs(phase_[i+1] - phase_[i])
+            println("$i $dp")
+            #= # NOPE
+            changed = true
+            while changed
+                changed = false
+                dp = abs(phase_[i+1] - phase_[i])
+                dpp = abs(phase_[i+1]+360. - phase_[i])
+                dpm = abs(phase_[i+1]-360. - phase_[i])
+                if dpp < dp
+                    phase_[i+1] += 360
+                    changed = true
+                end
+                if dpm < dp
+                    phase_[i+1] -= 360
+                    changed = true
+                end
+            end
+            =#
+        end
+    end
+
     #TODO work on phase uncertinies
     #ephase_ = Array{Float64}(undef, size(phase_,1))
     # TODO add bootstrap scheme
@@ -363,7 +389,7 @@ function p3folded(data, outdir, p3; ybins=18, start=1, number=nothing, times=10,
 
     # CREATE FIGURE
     fig, p = triple_panels()
-    p.left.ylabel = L"Pulse number $$"
+    p.left.ylabel = L"ybin number $$"
     p.left.xlabel = L"intensity $$"
     p.bottom.xlabel = L"longitude ($^\circ$)"
 

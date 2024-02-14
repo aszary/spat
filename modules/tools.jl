@@ -6,6 +6,18 @@ module Tools
 
 
     """
+    Calculates RMS
+    """
+    function rms(data)
+        s = 0.0
+        for a in data
+            s += a * a
+        end
+        return sqrt(s / length(data))
+    end
+
+
+    """
     Calculates average profile
     """
     function average_profile(data; norm=true)
@@ -111,7 +123,7 @@ module Tools
 
 
     """
-    Folds single pulse data using P3
+    Folds single pulse data using P3 (simplest)
     """
     function p3fold(single_pulses, p3; ybins=9)
         pulses, bins = size(single_pulses)
@@ -119,7 +131,6 @@ module Tools
         for i in 1:pulses
             frac = i / p3 - trunc(Int, i /p3)
             j = trunc(Int, frac * ybins) + 1 # start index = 1
-            #println("$i $j")
             for k in 1:bins
                 folded[j,k] += single_pulses[i,k]
             end
@@ -128,17 +139,40 @@ module Tools
     end
 
     """
-    get value in a range (min, max)  
+    Resample single pulse data for bootstarping 
+    on_bins - on pulse bins
     """
-    function modd(val, min, max)
-        dv = max - min
-        while val < min
-            val += dv
+    function resample(single_pulses, on_bins; off_bins=nothing, verbose=0)
+        pulses, bins = size(single_pulses)
+
+        if off_bins === nothing
+            # choose random off regions
+            dbins = on_bins[2] - on_bins[1]
+            half = trunc(Int, dbins / 2 + 0.5) # +1 for odd numbers
+            ranges = vcat(2*half : on_bins[1]-2*half, on_bins[2]+2*half : bins-2*half) # away from signal and borders
+            mid = rand(ranges)
+            off_bins = [mid-half, mid+half]
         end
-        while val > max
-            val -= dv
+
+        # pick random pulse
+        pulse = rand(1:pulses)
+
+        on_rms = Tools.rms(single_pulses[pulse, on_bins[1]:on_bins[2]])
+        off_rms = Tools.rms(single_pulses[pulse, off_bins[1]:off_bins[2]])
+        if verbose > 0
+            println("on pulse $pulse $on_bins RMS ", on_rms)
+            println("off pulse $pulse $off_bins RMS ", off_rms)
         end
-        return val
+
+        resampled_data =  Array{Float64}(undef, size(single_pulses))
+
+        for i in 1:pulses
+            for j in 1:bins
+                noise =  (rand() - 0.5) * off_rms
+                resampled_data[i, j] = single_pulses[i, j] + noise
+            end
+        end
+        return resampled_data
     end
 
 
