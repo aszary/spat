@@ -287,30 +287,10 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
 
     # LRFS phase  
     phase_ = rad2deg.(angle.(view(lrfs, peak, :)))  # fft phase variation  # view used! lrfs[peak, :] -> copies data
-    if fix_fftphase == true
-        for i in 1:length(phase_) - 1
-            dp = abs(phase_[i+1] - phase_[i])
-            println("$i $dp")
-            #= # NOPE
-            changed = true
-            while changed
-                changed = false
-                dp = abs(phase_[i+1] - phase_[i])
-                dpp = abs(phase_[i+1]+360. - phase_[i])
-                dpm = abs(phase_[i+1]-360. - phase_[i])
-                if dpp < dp
-                    phase_[i+1] += 360
-                    changed = true
-                end
-                if dpm < dp
-                    phase_[i+1] -= 360
-                    changed = true
-                end
-            end
-            =#
-        end
-    end
 
+    if fix_fftphase == true
+        Tools.fix_fftphase!(phase_)
+    end
     #TODO work on phase uncertinies
     #ephase_ = Array{Float64}(undef, size(phase_,1))
     # TODO add bootstrap scheme

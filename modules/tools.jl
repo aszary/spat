@@ -175,5 +175,55 @@ module Tools
         return resampled_data
     end
 
+    """
+    Supose to fix fft phase (strange approach)
+    """
+    function fix_fftphase!(phase)
+        smo = length(phase) - 1
+        # calculate phase differences
+        dps = Array{Float64}(undef, smo)
+        for i in 1:smo
+            dp = abs(phase[i+1] - phase[i])
+            dps[i] = dp
+        end
+        # finding breakpoints
+        bps = []
+        med = median(dps)
+        for i in 1:smo
+            if (dps[i] > 360 - 2*med) && (dps[i-1] < 2 * med) && (dps[i+1] < 2 * med)
+                push!(bps, i)
+            end
+        end
+        #println(bps)
+        # changing phase
+        for i in eachindex(phase)
+            # find segment
+            seg = nothing
+            for j in eachindex(bps)
+                if i <= bps[j]
+                    seg = (j-1)
+                    break
+                end
+            end
+            if seg === nothing
+                seg = length(bps)
+            end
+            phase[i] += seg * 360.
+            #println("$i $seg")
+        end
+        #=
+        me = mean(dps)
+        med = median(dps)
+        fig = Figure()
+        ax = Axis(fig[1,1])
+        scatter!(ax, dps)
+        hlines!(ax, me, color=:blue)
+        hlines!(ax, med, color=:red)
+        hlines!(ax, 360 - 2*med, color=:red)
+        vlines!(ax, bps, color=:red)
+        display(fig)
+        =#
+    end
+
 
 end # module
