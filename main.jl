@@ -3,6 +3,7 @@ module SPAT
     include("modules/data.jl")
     include("modules/plot.jl")
     include("modules/tools.jl")
+    include("modules/psrsalsa.jl")
 
 
 
@@ -19,26 +20,29 @@ module SPAT
 
 
         # RESAMPLE test
-        data2a = Tools.resample(data2, [470, 550], verbose=1)
+        #data2a = Tools.resample(data2, [470, 550], verbose=1)
 
         #Plot.single0(data1, "output"; number=150, bin_st=470, bin_end=550, name_mod="J0820")
 
         #Plot.single0(data1, "output"; bin_st=470, bin_end=550, name_mod="1_0")
         #Plot.single(data1, "output"; start=100, number=50, bin_st=470, bin_end=550, name_mod="1")
         #Plot.single0(data2, "output"; bin_st=470, bin_end=550, name_mod="2_0")
-        Plot.single(data2, "output"; bin_st=470, bin_end=550, name_mod="2")
-        Plot.single(data2a, "output"; bin_st=470, bin_end=550, name_mod="2a")
-        #Plot.single(data2b, "output"; bin_st=470, bin_end=550, name_mod="2b")
+        
+        #Plot.single(data2, "output"; bin_st=470, bin_end=550, name_mod="2")
+        #Plot.single(data2a, "output"; bin_st=470, bin_end=550, name_mod="2a")
 
+        #Plot.single(data2b, "output"; bin_st=470, bin_end=550, name_mod="2b")
 
         #Plot.single(data1, "output"; start=20, bin_st=470, bin_end=550, name_mod="1", number=150)
 
         # P3 Folds 
-        Plot.lrfs(data2, "output"; bin_st=470, bin_end=550, name_mod="2")
-        Plot.lrfs(data2a, "output"; bin_st=470, bin_end=550, name_mod="2a")
+        #Plot.lrfs(data2, "output"; bin_st=470, bin_end=550, name_mod="2", fix_fftphase=true)
+        #Plot.lrfs(data2a, "output"; bin_st=470, bin_end=550, name_mod="2a")
         #Plot.p3folded(data1, "output", 4.8; ybins=18, times=10,bin_st=470, bin_end=550, name_mod="1") # simple folding
         #Plot.single(data3, "output"; times=10, bin_st=470, bin_end=550, name_mod="1_folded", number=18) # PSRSALSA check /home/szary/work3/MeerKAT/data/J0820/single/salsa1.sh # not the pulse number on the left (ybin number)!
 
+        PSRSALSA.debase("input/1.spCF", [473, 556])
+        #PSRSALSA.debase("input/1.spCF", nothing)
 
     end
 

@@ -291,24 +291,9 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     if fix_fftphase == true
         Tools.fix_fftphase!(phase_)
     end
-    #TODO work on phase uncertinies
-    #ephase_ = Array{Float64}(undef, size(phase_,1))
-    # TODO add bootstrap scheme
-
-    # does not work! to low freq resolution...
-    #= 
-    phases = []
-    for i in 1:size(phase_, 1)
-        push!(phases, [])
-        for j in 1:size(freq, 1)
-            if (freq[j] >= f_min) && (freq[j] <= f_max)
-                push!(phases[i], rad2deg(angle(lrfs[j, i])))
-                println(freq[j], " ", j, " ", f_min, " ", f_max)
-            end
-        end
-    end
-    println(phases)
-    =#
+    
+    # bootstrap scheme to evaluate uncertinies
+    phases, phase_, ephase_minus, ephase_plus = Tools.phase_errors(data[start:start+number-1,:], [473, 556]; num=100, bin_range=[bin_st, bin_end], fix_fftphase=fix_fftphase)
 
     # CREATE FIGURE
     fig, p = quad_panels()
@@ -319,7 +304,15 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     p.top.ylabel = L"FFT phase ($^\circ$)"
 
     # PLOTTING DATA
-    scatter!(p.top, longitude, phase_, color=:grey, markersize=1)
+    # all bootstrap data
+    for phase in phases
+        scatter!(p.top, longitude, phase, color=:grey, markersize=0.7)
+    end
+    # errors bars based on bootstarping scheme # very small?
+    #scatter!(p.top, longitude, phase_, color=:grey, markersize=1)
+    #errorbars!(p.top, longitude, phase_, ephase_minus, ephase_plus, color=:red, whiskerwidth = 0, linewidth=0.2)
+
+
     xlims!(p.top, [longitude[1], longitude[end]])
     lines!(p.left, inten, fre, color=:grey, linewidth=0.5)
     lines!(p.left, Tools.gauss(fre, pars), fre, color=(:red, 0.3), linewidth=0.3)

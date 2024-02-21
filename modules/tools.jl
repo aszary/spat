@@ -1,4 +1,6 @@
 module Tools
+    using CairoMakie # 2D vector plots
+    CairoMakie.activate!()
     using Statistics
     using LsqFit
     using FFTW
@@ -138,6 +140,7 @@ module Tools
         return folded
     end
 
+
     """
     Resample single pulse data for bootstarping 
     on_bins - on pulse bins
@@ -175,8 +178,9 @@ module Tools
         return resampled_data
     end
 
+    
     """
-    Supose to fix fft phase (strange approach)
+    Fixes fft phase (strange approach but works for now)
     """
     function fix_fftphase!(phase)
         smo = length(phase) - 1
@@ -225,5 +229,74 @@ module Tools
         =#
     end
 
+
+    """
+    Gets FFT phase errors using bootstarping method
+    num - number of lrfses to calculate
+    bin_range - changes bin range of the resultant data
+    """
+    function phase_errors(single_pulses, on_bins; num=10, bin_range=nothing, fix_fftphase=false)
+
+        phases = []
+        raw_phases = []
+        for i in 1:num
+            data = resample(single_pulses, [on_bins[1], on_bins[2]], verbose=0)
+            lrfs, intensity, freq, peak = Tools.lrfs(data)
+            phase_ = rad2deg.(angle.(lrfs[peak, :]))  # fft phase variation 
+            if bin_range !== nothing
+                phase_ = phase_[bin_range[1]:bin_range[2]]
+            end
+            push!(raw_phases, copy(phase_))
+            if fix_fftphase == true
+                fix_fftphase!(phase_)
+            end
+            push!(phases, phase_)
+        end
+
+        phase = Array{Float64}(undef, length(phases[1]))
+        ephase_plus = Array{Float64}(undef, length(phases[1]))        
+        ephase_minus = Array{Float64}(undef, length(phases[1]))        
+
+        # manual calculation # raw phases (for proper errors)
+        for i in 1:length(phase)
+            mean = 0
+            mi, ma = 1e50, -1e50
+            for j in 1:num
+                mean += raw_phases[j][i]
+                if raw_phases[j][i] < mi 
+                    mi = raw_phases[j][i]
+                end
+                if phases[j][i] > ma 
+                    ma = raw_phases[j][i]
+                end
+            end
+            mean /= num
+            #phase[i] = mean
+            ephase_minus[i] = mean - mi
+            ephase_plus[i] = ma - mean
+        end
+        # manual calculation # for phases
+        for i in 1:length(phase)
+            mean = 0
+            for j in 1:num
+                mean += phases[j][i]
+            end
+            mean /= num
+            phase[i] = mean
+        end
+
+        #=
+        fig = Figure()
+        ax = Axis(fig[1,1])
+        errorbars!(ax, collect(1:length(phase)), phase, ephase_minus, ephase_plus)
+        #for ph in phases
+        #    scatter!(ax, ph)
+        #end
+        display(fig)
+        =#
+
+        return phases, phase, ephase_minus, ephase_plus
+
+    end
 
 end # module
