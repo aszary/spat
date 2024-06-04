@@ -6,8 +6,25 @@ module SPAT
     include("modules/psrsalsa.jl")
 
 
-
     function J0820()
+
+        #Data.psrfit2ascii("input/1.lowf", "input/1_low.txt")
+        #Data.psrfit2ascii("input/1.highf", "input/1_high.txt")
+
+        data1 = Data.load_ascii("input/1_low.txt")
+        data2 = Data.load_ascii("input/1_high.txt")
+        #data3 = Data.load_ascii("input/1.txt")
+
+
+
+        Plot.single(data1, "output"; bin_st=430, bin_end=570, name_mod="low")
+        Plot.single(data2, "output"; bin_st=430, bin_end=570, name_mod="high")
+        #=
+        Plot.single(data3, "output"; bin_st=430, bin_end=570, name_mod="1")
+        =#
+    end
+
+    function J0820_tests()
 
         data1 = Data.load_ascii("input/1.txt")
         data2 = Data.load_ascii("input/2.txt")
@@ -41,7 +58,8 @@ module SPAT
         #Plot.p3folded(data1, "output", 4.8; ybins=18, times=10,bin_st=470, bin_end=550, name_mod="1") # simple folding
         #Plot.single(data3, "output"; times=10, bin_st=470, bin_end=550, name_mod="1_folded", number=18) # PSRSALSA check /home/szary/work3/MeerKAT/data/J0820/single/salsa1.sh # not the pulse number on the left (ybin number)!
 
-        PSRSALSA.debase("input/1.spCF", [473, 556])
+        # moving to scripts...
+        #PSRSALSA.debase("input/1.spCF", [473, 556])
         #PSRSALSA.debase("input/1.spCF", nothing)
 
     end
@@ -50,6 +68,7 @@ module SPAT
     function main()
 
         J0820()
+        #J0820_tests()
         println("Bye")
 
     end
