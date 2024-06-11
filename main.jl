@@ -17,8 +17,11 @@ module SPAT
 
 
 
-        Plot.single(data1, "output"; bin_st=430, bin_end=570, name_mod="low")
-        Plot.single(data2, "output"; bin_st=430, bin_end=570, name_mod="high")
+        #Plot.single(data1, "output"; bin_st=430, bin_end=570, name_mod="low")
+        #Plot.single(data2, "output"; bin_st=430, bin_end=570, name_mod="high")
+        
+        #Plot.average(data2, "output"; bin_st=430, bin_end=570, name_mod="high")
+        Plot.averageX([data1, data2], "output"; bin_st=475, bin_end=550, name_mod="all")
         #=
         Plot.single(data3, "output"; bin_st=430, bin_end=570, name_mod="1")
         =#
