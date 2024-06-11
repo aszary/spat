@@ -12,11 +12,14 @@ module Data
         bins = parse(Int, res[12])
         data = Array{Float64}(undef, pulses, bins)
         for i in 2: length(lines)
-            res = split(lines[i])
-            bin = parse(Int, res[3]) + 1
-            pulse = parse(Int, res[1]) + 1
-            inte = parse(Float64, res[4])
-            data[pulse, bin] = inte
+            try
+                res = split(lines[i])
+                bin = parse(Int, res[3]) + 1
+                pulse = parse(Int, res[1]) + 1
+                inte = parse(Float64, res[4])
+                data[pulse, bin] = inte
+            catch
+            end
         end
         close(f)
         return data

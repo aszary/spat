@@ -11,8 +11,8 @@ module SPAT
         #Data.psrfit2ascii("input/1.lowf", "input/1_low.txt")
         #Data.psrfit2ascii("input/1.highf", "input/1_high.txt")
 
-        data1 = Data.load_ascii("input/1_low.txt")
-        data2 = Data.load_ascii("input/1_high.txt")
+        data1 = Data.load_ascii("input/1_low_4ch.txt")
+        data2 = Data.load_ascii("input/1_high_4ch.txt")
         #data3 = Data.load_ascii("input/1.txt")
 
 
