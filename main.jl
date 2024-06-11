@@ -11,17 +11,17 @@ module SPAT
         #Data.psrfit2ascii("input/1.lowf", "input/1_low.txt")
         #Data.psrfit2ascii("input/1.highf", "input/1_high.txt")
 
-        data1 = Data.load_ascii("input/1_low_4ch.txt")
-        data2 = Data.load_ascii("input/1_high_4ch.txt")
+        data1 = Data.load_ascii("input/1_low_2ch.txt")
+        data2 = Data.load_ascii("input/1_high_2ch.txt")
         #data3 = Data.load_ascii("input/1.txt")
 
 
 
-        #Plot.single(data1, "output"; bin_st=430, bin_end=570, name_mod="low")
-        #Plot.single(data2, "output"; bin_st=430, bin_end=570, name_mod="high")
+        Plot.single(data1, "output"; bin_st=430, bin_end=570, name_mod="low_2ch")
+        Plot.single(data2, "output"; bin_st=430, bin_end=570, name_mod="high_2ch")
         
         #Plot.average(data2, "output"; bin_st=430, bin_end=570, name_mod="high")
-        Plot.averageX([data1, data2], "output"; bin_st=475, bin_end=550, name_mod="all")
+        Plot.averageX([data1, data2], "output"; bin_st=475, bin_end=550, name_mod="all_2ch")
         #=
         Plot.single(data3, "output"; bin_st=430, bin_end=570, name_mod="1")
         =#

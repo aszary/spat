@@ -546,7 +546,8 @@ function averageX(datas, outdir; start=1, number=100, bin_st=nothing, bin_end=no
     ax = Axis(fig, bbox = BBox(40, 227-3, 35, 140-3), xlabel=L"longitude ($^\circ$)",  ylabel=L"Intensity $$",xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
     #println(fieldnames(typeof(ax)))
     for i in 1:length(avs)
-        lines!(ax, longitude, avs[i], c="C$i", label="Obs. num. $i", linewidth=0.5)
+        lines!(ax, longitude, avs[i], color=:red, label="Obs. num. $i", linewidth=0.5)
+        #lines!(ax, longitude, avs[i], c="C$i", label="Obs. num. $i", linewidth=0.5)
     end
 
     filename = "$outdir/$(name_mod)_averages.pdf"
