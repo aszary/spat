@@ -23,7 +23,8 @@ function triple_panels()
 
     # Figure size
     size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
-    size_pt = 72 .* size_inches
+    dpi = 72
+    size_pt = dpi .* size_inches
     #println(size_pt)
 
     fig = Figure(size=size_pt, fontsize=8)
@@ -60,7 +61,8 @@ function quad_panels()
 
     # Figure size
     size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
-    size_pt = 72 .* size_inches
+    dpi = 72
+    size_pt = dpi .* size_inches
     #println(size_pt)
 
     fig = Figure(size=size_pt, fontsize=8)
@@ -105,7 +107,8 @@ function single0(data, outdir; start=1, number=100, bin_st=nothing, bin_end=noth
 
     # Figure size
     size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
-    size_pt = 72 .* size_inches
+    dpi = 72
+    size_pt = dpi .* size_inches
 
     fig = Figure(size=size_pt, fontsize=8)
     ax = Axis(fig[1, 1], xlabel=L"bin number $$", ylabel=L"Pulse number $$", xminorticksvisible=true, yminorticksvisible=true)
@@ -152,7 +155,8 @@ function single_old(data, outdir; start=1, number=100, cmap="viridis", bin_st=no
 
     # Figure size
     size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
-    size_pt = 72 .* size_inches
+    dpi = 72
+    size_pt = dpi .* size_inches
     #println(size_pt)
     fig = Figure(szie=size_pt, fontsize=8)
 
@@ -500,11 +504,11 @@ function average(data, outdir; start=1, number=100, bin_st=nothing, bin_end=noth
 
     # Figure size
     size_inches = (8 / 2.54, 4.944 / 2.54) # 8cm x 4.944cm
-    size_pt = 72 .* size_inches
-    println(size_pt)
-    fig = Figure(size=size_pt, fontsize=8)
+    dpi = 300
+    size_pt = dpi .* size_inches
+    fig = Figure(size=size_pt, fontsize=8* dpi / 72)
     # BBox =(left, right, bottom, top) # THIS HERE 
-    ax = Axis(fig, bbox=BBox(40, 227 - 3, 35, 140 - 3), xlabel=L"longitude ($^\circ$)", ylabel=L"Intensity $$", xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
+    ax = Axis(fig, bbox=BBox(0.11 * size_pt[1], 0.99*size_pt[1], 0.1*size_pt[1], 0.99*size_pt[2]), xlabel=L"longitude ($^\circ$)", ylabel=L"Intensity $$", xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
     #println(fieldnames(typeof(ax)))
     lines!(ax, longitude, average, color=:grey, linewidth=0.5)
 
@@ -556,11 +560,11 @@ function averageX(datas, outdir; start=1, number=100, bin_st=nothing, bin_end=no
 
     # Figure size
     size_inches = (8 / 2.54, 4.944 / 2.54) # 8cm x 4.944cm
-    size_pt = 72 .* size_inches
-    println(size_pt)
-    fig = Figure(size=size_pt, fontsize=8)
+    dpi = 300
+    size_pt = dpi .* size_inches
+    fig = Figure(size=size_pt, fontsize=8 * dpi / 72)
     # BBox =(left, right, bottom, top) # THIS HERE 
-    ax = Axis(fig, bbox=BBox(40, 227 - 3, 35, 140 - 3), xlabel=L"longitude ($^\circ$)", ylabel=L"Intensity $$", xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
+    ax = Axis(fig, bbox=BBox(0.11 * size_pt[1], 0.99*size_pt[1], 0.1*size_pt[1], 0.99*size_pt[2]), xlabel=L"longitude ($^\circ$)", ylabel=L"Intensity $$", xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
     #println(fieldnames(typeof(ax)))
     for i in 1:length(avs)
         lines!(ax, longitude, avs[i], color=:red, label="Obs. num. $i", linewidth=0.5)
