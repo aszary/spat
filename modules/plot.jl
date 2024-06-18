@@ -20,28 +20,33 @@ end
 
 
 function triple_panels()
-    
+
     # Figure size
     size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
     size_pt = 72 .* size_inches
     #println(size_pt)
 
-    fig = Figure(resolution=size_pt, fontsize=8)
+    fig = Figure(size=size_pt, fontsize=8)
 
     left = Axis(fig[1:6, 1], xminorticksvisible=true, yminorticksvisible=true, xticks=[0.5]) # 2:6, 1
     #top = Axis(fig[1, 2:3], xaxisposition=:top, yaxisposition = :right)
     center = Axis(fig[1:6, 2:3]) # 2:6, 2:3
-    bottom = Axis(fig[7, 2:3], yaxisposition = :left, xminorticksvisible=true, yminorticksvisible=true, yticklabelsvisible=false)
+    bottom = Axis(fig[7, 2:3], yaxisposition=:left, xminorticksvisible=true, yminorticksvisible=true, yticklabelsvisible=false)
 
-    left.xreversed=true
+    left.xreversed = true
 
     hidedecorations!.(center)
     hidedecorations!.(left, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
     #hidedecorations!.(top, grid=false, ticks=false, ticklabels=false)
-    hidedecorations!.(bottom, grid=true, ticks=false, ticklabels=false,label=false, minorticks=false)
-    left.alignmode = Mixed(bottom = MakieLayout.Protrusion(0))
-    #top.alignmode = Mixed(left = MakieLayout.Protrusion(0))
-    bottom.alignmode = Mixed(left = MakieLayout.Protrusion(0))
+    hidedecorations!.(bottom, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
+    #left.alignmode = Mixed(bottom=MakieLayout.Protrusion(0)) # TODO NO MakieLayout anymore..
+    #left.padding[1] = 0 # TODO fix this
+    #left.scene.paddings[3] = 0 NO...
+    #fig.layout.content_rects[1][4] = 0  # bottom margin
+    #bottom.alignmode = Mixed(left=MakieLayout.Protrusion(0))
+    #bottom.padding[1] = 0 # TODO fix this
+
+
 
     colgap!(fig.layout, 0)
     rowgap!(fig.layout, 0)
@@ -58,22 +63,22 @@ function quad_panels()
     size_pt = 72 .* size_inches
     #println(size_pt)
 
-    fig = Figure(resolution=size_pt, fontsize=8)
+    fig = Figure(size=size_pt, fontsize=8)
 
     left = Axis(fig[2:6, 1], xminorticksvisible=true, yminorticksvisible=true, xticks=[0.5])
-    top = Axis(fig[1, 2:3], xaxisposition=:top, yaxisposition = :left, xminorticksvisible=true, yminorticksvisible=true)
+    top = Axis(fig[1, 2:3], xaxisposition=:top, yaxisposition=:left, xminorticksvisible=true, yminorticksvisible=true)
     center = Axis(fig[2:6, 2:3])
-    bottom = Axis(fig[7, 2:3], yaxisposition = :left, xminorticksvisible=true, yminorticksvisible=true, yticklabelsvisible=false)
+    bottom = Axis(fig[7, 2:3], yaxisposition=:left, xminorticksvisible=true, yminorticksvisible=true, yticklabelsvisible=false)
 
-    left.xreversed=true
+    left.xreversed = true
 
     hidedecorations!.(top, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
     hidedecorations!.(center)
     hidedecorations!.(left, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
-    hidedecorations!.(bottom, grid=true, ticks=false, ticklabels=false,label=false, minorticks=false)
-    left.alignmode = Mixed(bottom = MakieLayout.Protrusion(0))
-    top.alignmode = Mixed(left = MakieLayout.Protrusion(0))
-    bottom.alignmode = Mixed(left = MakieLayout.Protrusion(0))
+    hidedecorations!.(bottom, grid=true, ticks=false, ticklabels=false, label=false, minorticks=false)
+    left.alignmode = Mixed(bottom=MakieLayout.Protrusion(0))
+    top.alignmode = Mixed(left=MakieLayout.Protrusion(0))
+    bottom.alignmode = Mixed(left=MakieLayout.Protrusion(0))
 
     colgap!(fig.layout, 0)
     rowgap!(fig.layout, 0)
@@ -102,7 +107,7 @@ function single0(data, outdir; start=1, number=100, bin_st=nothing, bin_end=noth
     size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
     size_pt = 72 .* size_inches
 
-    fig = Figure(resolution=size_pt, fontsize=8)
+    fig = Figure(size=size_pt, fontsize=8)
     ax = Axis(fig[1, 1], xlabel=L"bin number $$", ylabel=L"Pulse number $$", xminorticksvisible=true, yminorticksvisible=true)
     hidexdecorations!(ax, label=false, ticklabels=false, ticks=false, grid=true, minorgrid=false, minorticks=false)
     hideydecorations!(ax, label=false, ticklabels=false, ticks=false, grid=true, minorgrid=false, minorticks=false)
@@ -149,7 +154,7 @@ function single_old(data, outdir; start=1, number=100, cmap="viridis", bin_st=no
     size_inches = (8 / 2.54, 11 / 2.54) # 8cm x 11cm
     size_pt = 72 .* size_inches
     #println(size_pt)
-    fig = Figure(resolution=size_pt, fontsize=8)
+    fig = Figure(szie=size_pt, fontsize=8)
 
     left = Axis(fig[1:3, 1], ylabel=L"Pulse number $$", xminorticksvisible=true, yminorticksvisible=true)
     hidexdecorations!(left, label=true, ticklabels=true, ticks=true, grid=true, minorgrid=true, minorticks=true)
@@ -221,7 +226,7 @@ function single(data, outdir; start=1, number=100, times=1, cmap="viridis", bin_
     # PLOTTING DATA
     lines!(p.left, intensity, pulses, color=:grey, linewidth=0.5)
     #xlims!(left, [0.01, 1.01])
-    ylims!(p.left, [pulses[1]-0.5, pulses[end]+0.5])
+    ylims!(p.left, [pulses[1] - 0.5, pulses[end] + 0.5])
 
     heatmap!(p.center, transpose(da))
 
@@ -245,8 +250,12 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     if number === nothing
         number = num - start + 1   # missing one?
     end
-    if bin_st === nothing bin_st = 1 end
-    if bin_end === nothing bin_end = bins end
+    if bin_st === nothing
+        bin_st = 1
+    end
+    if bin_end === nothing
+        bin_end = bins
+    end
 
     da = data[start:start+number-1, bin_st:bin_end]
 
@@ -254,7 +263,7 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     lrfs, intensity, freq, peak = Tools.lrfs(da)
     println("\tpeak freq $(freq[peak]) ")
     println("\tpeak P3 $(1/freq[peak])")
-   
+
     # skip freq = 0 and normalize intensity to 1
     if skip_firstfreq
         inten = intensity[2:end]
@@ -265,11 +274,11 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     end
     inten .-= minimum(inten)
     inten ./= maximum(inten)
-    
+
     # Pulse longitude
     db = (bin_end + 1) - bin_st  # yes +1
-    dl = 360. * db / bins
-    longitude = collect(range(-dl/2., dl/2., length=db))
+    dl = 360.0 * db / bins
+    longitude = collect(range(-dl / 2.0, dl / 2.0, length=db))
 
     # Finding P3
     pars, errs = Tools.fit_gaussian(fre, inten; μ=freq[peak-1])  # skip zero freq
@@ -281,7 +290,7 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     f_max = fr + frer
     # P3 error is it OK?
     dP1 = 1 / fr - 1 / f_max
-    dP2 = 1 / f_min  - 1 / fr
+    dP2 = 1 / f_min - 1 / fr
     dP = maximum([dP1, dP2])
     println("\tFrequency error (gaussian fit): $frer, P3 error: $dP")
 
@@ -291,9 +300,9 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     if fix_fftphase == true
         Tools.fix_fftphase!(phase_)
     end
-    
+
     # bootstrap scheme to evaluate uncertinies
-    phases, phase_, ephase_minus, ephase_plus = Tools.phase_errors(data[start:start+number-1,:], [473, 556]; num=100, bin_range=[bin_st, bin_end], fix_fftphase=fix_fftphase)
+    phases, phase_, ephase_minus, ephase_plus = Tools.phase_errors(data[start:start+number-1, :], [473, 556]; num=100, bin_range=[bin_st, bin_end], fix_fftphase=fix_fftphase)
 
     # CREATE FIGURE
     fig, p = quad_panels()
@@ -319,7 +328,7 @@ function lrfs(data, outdir; start=1, number=nothing, cmap="viridis", bin_st=noth
     #xlims!(left, [0.01, 1.01])
     ylims!(p.left, [fre[1], fre[end]])
     if skip_firstfreq
-        heatmap!(p.center, transpose(abs.(lrfs[2:end,:])))
+        heatmap!(p.center, transpose(abs.(lrfs[2:end, :])))
     else
         heatmap!(p.center, transpose(abs.(lrfs)))
     end
@@ -369,7 +378,7 @@ function p3folded(data, outdir, p3; ybins=18, start=1, number=nothing, times=10,
     # PLOTTING DATA
     lines!(p.left, intensity, pulses, color=:grey, linewidth=0.5)
     #xlims!(p.left, [0.01, 1.01])
-    ylims!(p.left, [pulses[1]-0.5, pulses[end]+0.5])
+    ylims!(p.left, [pulses[1] - 0.5, pulses[end] + 0.5])
 
     heatmap!(p.center, transpose(da))
 
@@ -450,20 +459,20 @@ function test_fft(data)
     #lines!(ax2, freq, ff, color=:red, linewidth=1)
     #lines!(ax2, freq, imag.(ff0), color=:blue, linewidth=1)
 
-    vlines!(ax2, 1/1024, color=:blue, linewidth=1)
+    vlines!(ax2, 1 / 1024, color=:blue, linewidth=1)
     #vlines!(ax2, 2/1024, color=:blue, linewidth=1)
     #vlines!(ax2, 3/1024, color=:blue, linewidth=1)
     #lines!(fig, 2*da, color=:grey, linewidth=0.5)
 
     ax3 = Axis(fig[3, 1])
     v, ind = findmax(r[3:end])
-    lines!(ax3, r , color=:blue, linewidth=1)
-    vlines!(ax3, ind+2, color=:red, linewidth=1)
+    lines!(ax3, r, color=:blue, linewidth=1)
+    vlines!(ax3, ind + 2, color=:red, linewidth=1)
 
     ax4 = Axis(fig[4, 1])
     #lines!(ax4, p.freq, DSP.pow2db.(p.power), color=:black, linewidth=1)
     lines!(ax4, p.freq, p.power, color=:black, linewidth=1)
-    vlines!(ax4, 1/1024, color=(:red, 0.4), linewidth=4)
+    vlines!(ax4, 1 / 1024, color=(:red, 0.4), linewidth=4)
 
     #save("output/test.pdf", fig)
     display(fig)
@@ -475,23 +484,27 @@ function average(data, outdir; start=1, number=100, bin_st=nothing, bin_end=noth
     if number === nothing
         number = num - start  # missing one?
     end
-    if bin_st === nothing bin_st = 1 end
-    if bin_end === nothing bin_end = bins end
-    da = data[start:start+number-1,bin_st:bin_end]
+    if bin_st === nothing
+        bin_st = 1
+    end
+    if bin_end === nothing
+        bin_end = bins
+    end
+    da = data[start:start+number-1, bin_st:bin_end]
     average = Tools.average_profile(da)
 
     # Pulse longitude
     db = (bin_end + 1) - bin_st  # yes +1
-    dl = 360. * db / bins
-    longitude = collect(range(-dl/2., dl/2., length=db))
+    dl = 360.0 * db / bins
+    longitude = collect(range(-dl / 2.0, dl / 2.0, length=db))
 
     # Figure size
     size_inches = (8 / 2.54, 4.944 / 2.54) # 8cm x 4.944cm
     size_pt = 72 .* size_inches
     println(size_pt)
-    fig = Figure(resolution=size_pt, fontsize=8)
+    fig = Figure(size=size_pt, fontsize=8)
     # BBox =(left, right, bottom, top) # THIS HERE 
-    ax = Axis(fig, bbox = BBox(40, 227-3, 35, 140-3), xlabel=L"longitude ($^\circ$)",  ylabel=L"Intensity $$",xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
+    ax = Axis(fig, bbox=BBox(40, 227 - 3, 35, 140 - 3), xlabel=L"longitude ($^\circ$)", ylabel=L"Intensity $$", xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
     #println(fieldnames(typeof(ax)))
     lines!(ax, longitude, average, color=:grey, linewidth=0.5)
 
@@ -513,17 +526,21 @@ function averageX(datas, outdir; start=1, number=100, bin_st=nothing, bin_end=no
     numbers = []
     if number === nothing
         for num in nums
-            push!(numbers, num-start)  # missing one?
+            push!(numbers, num - start)  # missing one?
         end
     else
         for i in 1:length(nums)
             push!(numbers, number)
         end
     end
-    if bin_st == nothing bin_st = 1 end
-    if bin_end == nothing bin_end = bins[1] end
+    if bin_st == nothing
+        bin_st = 1
+    end
+    if bin_end == nothing
+        bin_end = bins[1]
+    end
     das = []
-    for (i,data) in enumerate(datas)
+    for (i, data) in enumerate(datas)
         da = data[start:start+numbers[i]-1, bin_st:bin_end]
         push!(das, da)
     end
@@ -534,16 +551,16 @@ function averageX(datas, outdir; start=1, number=100, bin_st=nothing, bin_end=no
 
     # Pulse longitude
     db = (bin_end + 1) - bin_st  # yes +1
-    dl = 360. * db / bins[1]
-    longitude = collect(range(-dl/2., dl/2., length=db))
+    dl = 360.0 * db / bins[1]
+    longitude = collect(range(-dl / 2.0, dl / 2.0, length=db))
 
     # Figure size
     size_inches = (8 / 2.54, 4.944 / 2.54) # 8cm x 4.944cm
     size_pt = 72 .* size_inches
     println(size_pt)
-    fig = Figure(resolution=size_pt, fontsize=8)
+    fig = Figure(size=size_pt, fontsize=8)
     # BBox =(left, right, bottom, top) # THIS HERE 
-    ax = Axis(fig, bbox = BBox(40, 227-3, 35, 140-3), xlabel=L"longitude ($^\circ$)",  ylabel=L"Intensity $$",xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
+    ax = Axis(fig, bbox=BBox(40, 227 - 3, 35, 140 - 3), xlabel=L"longitude ($^\circ$)", ylabel=L"Intensity $$", xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
     #println(fieldnames(typeof(ax)))
     for i in 1:length(avs)
         lines!(ax, longitude, avs[i], color=:red, label="Obs. num. $i", linewidth=0.5)
