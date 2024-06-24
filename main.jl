@@ -27,24 +27,15 @@ module SPAT
         =#
     end
 
-    function J0151()
+    function some_plots(name, dir_, d1, d2; bin_st=250, bin_end=750)
 
-        dir_ = "/home/szary/work3/MeerKAT/data/J0151-0635/"
+        data1 = Data.load_ascii(dir_*d1)
+        data2 = Data.load_ascii(dir_*d2)
 
-        data1 = Data.load_ascii(dir_*"2020-04-13-10_00_14_00000-00255_2ch_low.txt" )
-        data2 = Data.load_ascii(dir_*"2020-04-13-10_00_14_00000-00255_2ch_high.txt")
-        #data3 = Data.load_ascii("input/1.txt")
-
-
-
-        Plot.single(data1, "output"; bin_st=350, bin_end=650, name_mod="J0151_low_2ch")
-        Plot.single(data2, "output"; bin_st=350, bin_end=650, name_mod="J0151_high_2ch")
+        Plot.single(data1, "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_low_2ch")
+        Plot.single(data2, "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_high_2ch")
         
-        #Plot.average(data2, "output"; bin_st=430, bin_end=570, name_mod="high")
-        Plot.averageX([data1, data2], "output"; bin_st=350, bin_end=650, name_mod="J0151_2ch")
-        #=
-        Plot.single(data3, "output"; bin_st=430, bin_end=570, name_mod="1")
-        =#
+        Plot.averageX([data1, data2], "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_2ch")
     end
 
 
@@ -94,7 +85,8 @@ module SPAT
     function main()
 
         #J0820()
-        J0151()
+        #some_plots("J0151", "/home/szary/work3/MeerKAT/data/J0151-0635/", "2020-04-13-10_00_14_00000-00255_2ch_low.txt", "2020-04-13-10_00_14_00000-00255_2ch_high.txt")
+        some_plots("J1133", "/home/szary/work3/MeerKAT/data/J1133-6250/", "2019-11-06-00_46_43_00000-00255_2ch_low.txt", "2019-11-06-00_46_43_00000-00255_2ch_high.txt")
         #J0820_tests()
         println("Bye")
 
