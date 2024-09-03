@@ -558,6 +558,8 @@ function averageX(datas, outdir; start=1, number=100, bin_st=nothing, bin_end=no
     dl = 360.0 * db / bins[1]
     longitude = collect(range(-dl / 2.0, dl / 2.0, length=db))
 
+    colors = [:red, :blue, :green, :magenta]
+
     # Figure size
     size_inches = (8 / 2.54, 4.944 / 2.54) # 8cm x 4.944cm
     dpi = 300
@@ -567,7 +569,7 @@ function averageX(datas, outdir; start=1, number=100, bin_st=nothing, bin_end=no
     ax = Axis(fig, bbox=BBox(0.11 * size_pt[1], 0.99*size_pt[1], 0.1*size_pt[1], 0.99*size_pt[2]), xlabel=L"longitude ($^\circ$)", ylabel=L"Intensity $$", xminorticksvisible=true, yminorticksvisible=true, xgridvisible=false, ygridvisible=false)
     #println(fieldnames(typeof(ax)))
     for i in 1:length(avs)
-        lines!(ax, longitude, avs[i], color=:red, label="Obs. num. $i", linewidth=0.5)
+        lines!(ax, longitude, avs[i], color=colors[i], label="Obs. num. $i", linewidth=0.5)
         #lines!(ax, longitude, avs[i], c="C$i", label="Obs. num. $i", linewidth=0.5)
     end
 
