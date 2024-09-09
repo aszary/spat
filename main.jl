@@ -6,7 +6,7 @@ module SPAT
     include("modules/psrsalsa.jl")
 
 
-    function J0820()
+    function J0820()#-1350
 
         #Data.psrfit2ascii("input/1.lowf", "input/1_low.txt")
         #Data.psrfit2ascii("input/1.highf", "input/1_high.txt")
@@ -32,8 +32,8 @@ module SPAT
         data1 = Data.load_ascii(dir_*d1)
         data2 = Data.load_ascii(dir_*d2)
 
-        Plot.single(data1, "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_low_2ch")
-        Plot.single(data2, "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_high_2ch")
+        Plot.single(data1, "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_low_2ch", number=nothing)
+        Plot.single(data2, "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_high_2ch", number=nothing)
         
         Plot.averageX([data1, data2], "output"; bin_st=bin_st, bin_end=bin_end, name_mod=name*"_2ch")
     end
@@ -87,7 +87,8 @@ module SPAT
         #J0820()
         #some_plots("J0151", "/home/szary/work/3/MeerKAT/data/J0151-0635/", "2020-04-13-10_00_14_00000-00255_2ch_low.txt", "2020-04-13-10_00_14_00000-00255_2ch_high.txt")
         #some_plots("J1133", "/home/szary/work/3/MeerKAT/data/J1133-6250/", "2019-11-06-00_46_43_00000-00255_2ch_low.txt", "2019-11-06-00_46_43_00000-00255_2ch_high.txt")
-        some_plots("J1842-0359", "/home/szary/work/3/MeerKAT/data/J1842-0359/", "2019-11-05-18_03_43_00000-00255_2ch_low.txt", "2019-11-05-18_03_43_00000-00255_2ch_high.txt")
+        #some_plots("J1842-0359", "/home/szary/work/3/MeerKAT/data/J1842-0359/", "2019-11-05-18_03_43_00000-00255_2ch_low.txt", "2019-11-05-18_03_43_00000-00255_2ch_high.txt")
+        some_plots("J1842-0359_4ch_", "/home/szary/work/3/MeerKAT/data/J1842-0359/", "2019-11-05-18_03_43_00000-00255_4ch_low.txt", "2019-11-05-18_03_43_00000-00255_4ch_high.txt")
         #J0820_tests()
         println("Bye")
 
