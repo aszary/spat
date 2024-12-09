@@ -84,11 +84,11 @@ module SPAT
 
     function main()
 
-        #J0820()
+        J0820()
         #some_plots("J0151", "/home/szary/work/3/MeerKAT/data/J0151-0635/", "2020-04-13-10_00_14_00000-00255_2ch_low.txt", "2020-04-13-10_00_14_00000-00255_2ch_high.txt")
         #some_plots("J1133", "/home/szary/work/3/MeerKAT/data/J1133-6250/", "2019-11-06-00_46_43_00000-00255_2ch_low.txt", "2019-11-06-00_46_43_00000-00255_2ch_high.txt")
         #some_plots("J1842-0359", "/home/szary/work/3/MeerKAT/data/J1842-0359/", "2019-11-05-18_03_43_00000-00255_2ch_low.txt", "2019-11-05-18_03_43_00000-00255_2ch_high.txt")
-        some_plots("J1842-0359_4ch_", "/home/szary/work/3/MeerKAT/data/J1842-0359/", "2019-11-05-18_03_43_00000-00255_4ch_low.txt", "2019-11-05-18_03_43_00000-00255_4ch_high.txt")
+        #some_plots("J1842-0359_4ch_", "/home/szary/work/3/MeerKAT/data/J1842-0359/", "2019-11-05-18_03_43_00000-00255_4ch_low.txt", "2019-11-05-18_03_43_00000-00255_4ch_high.txt")
         #J0820_tests()
         println("Bye")
 
