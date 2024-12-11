@@ -6,6 +6,8 @@ output/*
 input/*
 # sync this file
 !input/README
+!input/1_low_2ch.txt
+!input/1_high_2ch.txt
 
 errs.txt
 
